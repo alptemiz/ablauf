@@ -8,23 +8,7 @@ let front = true;
 let progress = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
 let studyTurn = Number(localStorage.getItem(TURN_KEY)) || 0;
 
-let lastFlipActivationAt = 0;
-
-function activateFlipButton(event) {
-  if (event) {
-    event.preventDefault();
-    event.stopPropagation();
-  }
-
-  const now = Date.now();
-
-  if (now - lastFlipActivationAt < 80) {
-    return;
-  }
-
-  lastFlipActivationAt = now;
-  flipCard();
-}
+let lastTouchFlipAt = 0;
 
 function setupFlipButton() {
   const button = document.getElementById("flipButton");
@@ -34,22 +18,24 @@ function setupFlipButton() {
   button.ontouchstart = null;
   button.ontouchend = null;
   button.onpointerdown = null;
+  button.onpointerup = null;
 
-  if (window.PointerEvent) {
-    button.addEventListener("pointerdown", activateFlipButton, { passive: false });
-  } else {
-    button.addEventListener("touchstart", activateFlipButton, { passive: false });
-    button.addEventListener("mousedown", activateFlipButton);
-  }
+  button.addEventListener("touchend", function(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    lastTouchFlipAt = Date.now();
+    flipCard();
+  }, { passive: false });
 
   button.addEventListener("click", function(event) {
-    if (Date.now() - lastFlipActivationAt < 400) {
-      event.preventDefault();
-      event.stopPropagation();
+    event.stopPropagation();
+
+    if (Date.now() - lastTouchFlipAt < 600) {
       return;
     }
 
-    activateFlipButton(event);
+    flipCard();
   });
 }
 

@@ -154,14 +154,10 @@ button {
   overflow: hidden;
   touch-action: auto;
   -webkit-tap-highlight-color: transparent;
-  -webkit-user-select: none;
-  user-select: none;
+  -webkit-user-select: text;
+  user-select: text;
 }
 
-.card,
-.card * {
-  pointer-events: none;
-}
 
 .card-meta {
   position: absolute;
@@ -451,7 +447,7 @@ button {
 }
 
 
-.flip-button { background: #74848b; color: #111827; touch-action: none; -webkit-touch-callout: none; }
+.flip-button { background: #74848b; color: #111827; touch-action: manipulation; -webkit-touch-callout: none; }
 .controls-row-flip button { min-width: 276px; }
 
 .flip-button,

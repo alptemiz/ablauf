@@ -124,6 +124,11 @@ function escapeHtml(text) {
     .replace(/'/g, "&#039;");
 }
 
+function formatPatientensprache(text) {
+  return escapeHtml(String(text || "").replace(/\s+/g, " ").trim())
+    .replace(/([.!?])\s+(?=[A-ZÄÖÜ])/g, "$1<br>");
+}
+
 function renderAblaufContext(card) {
   const contextElement = document.getElementById("ablaufContext");
   if (!contextElement) return;
@@ -266,7 +271,7 @@ function renderCard() {
   document.getElementById("step").textContent = card.step || "";
   renderAblaufContext(card);
   document.getElementById("questionText").innerHTML = escapeHtml(card.fachbegriff);
-  document.getElementById("answerText").innerHTML = escapeHtml(card.laiensprache);
+  document.getElementById("answerText").innerHTML = formatPatientensprache(card.laiensprache);
   const scoreElement = document.getElementById("score");
   if (scoreElement) scoreElement.textContent = scoreText();
 }
@@ -476,9 +481,38 @@ async function loadExcelFromFile(file) {
   }
 }
 
+function isKeyboardInputElement(element) {
+  if (!element) return false;
+
+  const tagName = element.tagName ? element.tagName.toLowerCase() : "";
+
+  return (
+    tagName === "input" ||
+    tagName === "textarea" ||
+    tagName === "select" ||
+    element.isContentEditable
+  );
+}
+
 document.addEventListener("keydown", function(event) {
-  if (event.key === "ArrowRight") nextCard();
-  if (event.key === "ArrowLeft") previousCard();
+  if (isKeyboardInputElement(event.target)) return;
+
+  if (event.key === " " || event.code === "Space") {
+    event.preventDefault();
+    event.stopPropagation();
+    flipCard();
+    return;
+  }
+
+  if (event.key === "ArrowRight") {
+    event.preventDefault();
+    nextCard();
+  }
+
+  if (event.key === "ArrowLeft") {
+    event.preventDefault();
+    previousCard();
+  }
 
   if (event.key === "ArrowUp") {
     event.preventDefault();
@@ -489,7 +523,7 @@ document.addEventListener("keydown", function(event) {
     event.preventDefault();
     markGood();
   }
-});
+}, true);
 
 document.addEventListener("DOMContentLoaded", function() {
   disableCardPointerFlip();

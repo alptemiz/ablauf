@@ -1,10 +1,12 @@
 const STORAGE_KEY = "flashcardProgressExcelV1";
+const TURN_KEY = `${STORAGE_KEY}_studyTurn`;
 
 let allCards = [];
 let currentCards = [];
 let index = 0;
 let front = true;
 let progress = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+let studyTurn = Number(localStorage.getItem(TURN_KEY)) || 0;
 
 function getState(card) {
   if (!progress[card.id]) {
@@ -13,15 +15,28 @@ function getState(card) {
       again: 0,
       good: 0,
       penalty: 0,
-      lastResult: "new"
+      lastResult: "new",
+      lastSeenTurn: 0,
+      dueAfterTurn: 0
     };
   }
 
-  return progress[card.id];
+  const state = progress[card.id];
+
+  state.shown = Number(state.shown) || 0;
+  state.again = Number(state.again) || 0;
+  state.good = Number(state.good) || 0;
+  state.penalty = Number(state.penalty) || 0;
+  state.lastResult = state.lastResult || "new";
+  state.lastSeenTurn = Number(state.lastSeenTurn) || 0;
+  state.dueAfterTurn = Number(state.dueAfterTurn) || 0;
+
+  return state;
 }
 
 function saveProgress() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+  localStorage.setItem(TURN_KEY, String(studyTurn));
 }
 
 function getAnswerTotal(card) {
@@ -29,23 +44,44 @@ function getAnswerTotal(card) {
   return state.again + state.good;
 }
 
-function getAgainRate(card) {
+function isCoolingDown(card) {
   const state = getState(card);
-  const total = getAnswerTotal(card);
+  return state.dueAfterTurn > studyTurn;
+}
 
-  if (total === 0) return 0;
+function getCooldownWait(card) {
+  const state = getState(card);
+  return Math.max(0, state.dueAfterTurn - studyTurn);
+}
 
-  return state.again / total;
+function getCooldownLength(result) {
+  const visibleCount = Math.max(currentCards.length, 1);
+
+  if (result === "again") {
+    return Math.min(8, Math.max(3, Math.round(visibleCount * 0.06)));
+  }
+
+  if (result === "good") {
+    return Math.min(22, Math.max(8, Math.round(visibleCount * 0.18)));
+  }
+
+  return 0;
 }
 
 function calculatePenalty(card) {
   const state = getState(card);
   const answerTotal = getAnswerTotal(card);
-  const againRate = getAgainRate(card);
+  const age = state.lastSeenTurn > 0
+    ? Math.max(0, studyTurn - state.lastSeenTurn)
+    : 0;
 
-  if (answerTotal === 0) return 0;
+  const newBonus = answerTotal === 0 ? 2 : 0;
+  const againPressure = state.again * 7;
+  const goodReduction = state.good * 5;
+  const exposureReduction = Math.min(state.shown * 1.4, 18);
+  const ageBonus = Math.min(age * 0.65, 8);
 
-  return state.again * 8 - state.good * 3 + againRate * 12;
+  return newBonus + againPressure - goodReduction - exposureReduction + ageBonus;
 }
 
 function escapeHtml(text) {
@@ -53,7 +89,7 @@ function escapeHtml(text) {
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
+    .replace(/\"/g, "&quot;")
     .replace(/'/g, "&#039;");
 }
 
@@ -105,17 +141,30 @@ function applyFilters() {
 
 function reorderByLearningPriority() {
   currentCards.sort((a, b) => {
+    const coolingA = isCoolingDown(a);
+    const coolingB = isCoolingDown(b);
+
+    if (coolingA !== coolingB) return coolingA ? 1 : -1;
+
+    if (coolingA && coolingB) {
+      const waitA = getCooldownWait(a);
+      const waitB = getCooldownWait(b);
+      if (waitA !== waitB) return waitA - waitB;
+    }
+
     const penaltyA = calculatePenalty(a);
     const penaltyB = calculatePenalty(b);
 
     if (penaltyA !== penaltyB) return penaltyB - penaltyA;
 
-    const answerTotalA = getAnswerTotal(a);
-    const answerTotalB = getAnswerTotal(b);
+    const stateA = getState(a);
+    const stateB = getState(b);
 
-    if (answerTotalA !== answerTotalB) return answerTotalA - answerTotalB;
+    if (stateA.shown !== stateB.shown) return stateA.shown - stateB.shown;
+    if (stateA.again !== stateB.again) return stateB.again - stateA.again;
+    if (stateA.good !== stateB.good) return stateA.good - stateB.good;
 
-    return getState(a).shown - getState(b).shown;
+    return a.id.localeCompare(b.id);
   });
 }
 
@@ -129,7 +178,9 @@ function showCurrentCard(countShown = false) {
     const card = currentCards[index];
     const state = getState(card);
 
+    studyTurn++;
     state.shown++;
+    state.lastSeenTurn = studyTurn;
     state.penalty = calculatePenalty(card);
 
     saveProgress();
@@ -141,6 +192,7 @@ function showCurrentCard(countShown = false) {
 function renderEmptyCard() {
   document.getElementById("card").className = "card front";
   document.getElementById("cardMeta").textContent = "0 / 0";
+  document.getElementById("cardProgress").textContent = "";
   document.getElementById("step").textContent = "";
   document.getElementById("questionText").textContent = "Keine Karten gefunden";
   document.getElementById("answerText").textContent = "";
@@ -149,9 +201,13 @@ function renderEmptyCard() {
 
 function renderCard() {
   const card = currentCards[index];
+  const state = getState(card);
+  const penalty = calculatePenalty(card);
 
   document.getElementById("card").className = front ? "card front" : "card back";
   document.getElementById("cardMeta").textContent = `${index + 1} / ${currentCards.length} | ${card.category}`;
+  document.getElementById("cardProgress").textContent =
+    `Gezeigt ${state.shown} | Gewusst ${state.good} | Wiederholen ${state.again} | Strafpunkt ${penalty.toFixed(1)}`;
   document.getElementById("step").textContent = card.step || "";
   document.getElementById("questionText").innerHTML = escapeHtml(card.fachbegriff);
   document.getElementById("answerText").innerHTML = escapeHtml(card.laiensprache);
@@ -206,6 +262,7 @@ function markAgain() {
 
   state.again++;
   state.lastResult = "again";
+  state.dueAfterTurn = studyTurn + getCooldownLength("again");
   state.penalty = calculatePenalty(card);
 
   saveProgress();
@@ -225,17 +282,11 @@ function markGood() {
 
   state.good++;
   state.lastResult = "good";
+  state.dueAfterTurn = studyTurn + getCooldownLength("good");
   state.penalty = calculatePenalty(card);
 
   saveProgress();
   reorderByLearningPriority();
-
-  const cardIndex = currentCards.findIndex(x => x.id === card.id);
-
-  if (cardIndex >= 0) {
-    currentCards.splice(cardIndex, 1);
-    currentCards.push(card);
-  }
 
   index = 0;
   front = true;
@@ -245,6 +296,7 @@ function markGood() {
 
 function resetProgress() {
   progress = {};
+  studyTurn = 0;
   saveProgress();
   applyFilters();
 }
@@ -252,9 +304,9 @@ function resetProgress() {
 function exportProgress() {
   const exportData = {
     type: "FAMED_FLASHCARD_PROGRESS",
-    version: 1,
     exportedAt: new Date().toISOString(),
     storageKey: STORAGE_KEY,
+    studyTurn,
     progress
   };
 
@@ -291,11 +343,19 @@ function normalizeImportedProgress(data) {
       again: Number(state.again) || 0,
       good: Number(state.good) || 0,
       penalty: Number(state.penalty) || 0,
-      lastResult: state.lastResult || "new"
+      lastResult: state.lastResult || "new",
+      lastSeenTurn: Number(state.lastSeenTurn) || 0,
+      dueAfterTurn: Number(state.dueAfterTurn) || 0
     };
   });
 
   return cleaned;
+}
+
+function inferStudyTurnFromProgress(cleanedProgress) {
+  return Object.values(cleanedProgress).reduce((maxTurn, state) => {
+    return Math.max(maxTurn, Number(state.lastSeenTurn) || 0, Number(state.dueAfterTurn) || 0);
+  }, 0);
 }
 
 async function importProgressFromFile(file) {
@@ -304,7 +364,10 @@ async function importProgressFromFile(file) {
 
     const text = await file.text();
     const data = JSON.parse(text);
-    progress = normalizeImportedProgress(data);
+    const cleaned = normalizeImportedProgress(data);
+
+    progress = cleaned;
+    studyTurn = Number(data.studyTurn) || inferStudyTurnFromProgress(cleaned);
 
     saveProgress();
     applyFilters();

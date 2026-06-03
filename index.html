@@ -3,11 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <meta http-equiv="Pragma" content="no-cache">
-  <meta http-equiv="Expires" content="0">
   <title>FAMED Ablauf Flashcards</title>
-  <link rel="stylesheet" href="style.css?v=20260603d">
+  <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
@@ -17,7 +14,7 @@
   <header>
     <h1>FAMED Ablauf Flashcards</h1>
     <p>Nominalstil → Patientensprache</p>
-    <a class="navlink" href="stats.html?v=20260603d">Statistik öffnen</a>
+    <a class="navlink" href="stats.html">Statistik öffnen</a>
   </header>
 
   <div class="source-row">
@@ -45,6 +42,7 @@
 
   <main class="card front" id="card" onclick="flipCard()">
     <div class="card-meta" id="cardMeta"></div>
+    <div class="card-progress" id="cardProgress"></div>
     <div class="step-label" id="step"></div>
 
     <div class="card-grid">
@@ -68,8 +66,8 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script src="excel-loader.js?v=20260603d"></script>
-<script src="app.js?v=20260603d"></script>
+<script src="excel-loader.js"></script>
+<script src="app.js"></script>
 
 </body>
 </html>

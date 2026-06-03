@@ -19,7 +19,7 @@ body {
 
 header h1 {
   margin: 0;
-  font-size: clamp(28px, 4vw, 42px);
+  font-size: 38px;
   font-weight: 800;
   letter-spacing: 0.03em;
 }
@@ -65,7 +65,7 @@ header p {
 .file-label,
 .toolbar-file-button {
   display: inline-block;
-  background: #7896a6;
+  background: #74848b;
   color: #111827;
   padding: 10px 14px;
   border-radius: 12px;
@@ -98,25 +98,25 @@ button,
 }
 
 select {
-  width: min(360px, 36vw);
-  background: #d8d5ce;
+  width: 320px;
+  background: #c7c3ba;
   color: #1f2933;
 }
 
 input {
-  width: 230px;
-  background: #d8d5ce;
+  width: 210px;
+  background: #c7c3ba;
   color: #1f2933;
 }
 
 select:focus,
 input:focus {
-  outline: 2px solid #8abbd6;
+  outline: 2px solid #7da8bd;
   outline-offset: 2px;
 }
 
 button {
-  background: #7896a6;
+  background: #74848b;
   color: #111827;
   font-weight: 700;
   cursor: pointer;
@@ -125,7 +125,7 @@ button {
 button:hover,
 .file-label:hover,
 .toolbar-file-button:hover {
-  filter: brightness(1.06);
+  filter: brightness(1.05);
 }
 
 .stats {
@@ -142,8 +142,10 @@ button:hover,
   position: relative;
   background: #141415;
   border-radius: 26px;
+  height: 380px;
   min-height: 380px;
-  padding: 48px 42px 34px;
+  max-height: 380px;
+  padding: 54px 42px 32px;
   display: flex;
   align-items: stretch;
   justify-content: center;
@@ -151,6 +153,7 @@ button:hover,
   box-shadow: 0 18px 46px rgba(0,0,0,0.34);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
   border: 1px solid rgba(255,255,255,0.04);
+  overflow: hidden;
 }
 
 .card:hover {
@@ -160,11 +163,11 @@ button:hover,
 
 .card-meta {
   position: absolute;
-  top: 18px;
+  top: 17px;
   left: 24px;
-  max-width: 44%;
+  max-width: 36%;
   color: #b9bac0;
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1.25;
   text-align: left;
   white-space: nowrap;
@@ -172,14 +175,28 @@ button:hover,
   text-overflow: ellipsis;
 }
 
+.card-progress {
+  position: absolute;
+  top: 17px;
+  right: 24px;
+  max-width: 36%;
+  color: #aaaab0;
+  font-size: 12px;
+  line-height: 1.25;
+  text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .step-label {
   position: absolute;
-  top: 16px;
+  top: 15px;
   left: 50%;
   transform: translateX(-50%);
-  max-width: 42%;
+  max-width: 24%;
   color: #b9d8e8;
-  font-size: clamp(15px, 1.9vw, 19px);
+  font-size: 17px;
   font-weight: 800;
   text-align: center;
   white-space: nowrap;
@@ -189,17 +206,19 @@ button:hover,
 
 .card-grid {
   width: 100%;
+  height: 100%;
+  min-height: 0;
   display: grid;
   grid-template-rows: 1fr auto 1fr;
-  min-height: 286px;
 }
 
 .card-half {
-  min-height: 128px;
+  min-height: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 10px 8px;
+  padding: 8px 6px;
+  overflow: hidden;
 }
 
 .card-divider {
@@ -211,19 +230,21 @@ button:hover,
 .term {
   font-family: Arial, sans-serif;
   font-weight: 800;
-  line-height: 1.18;
+  font-size: 23px;
+  line-height: 1.22;
   max-width: 920px;
+  max-height: 100%;
+  overflow-y: auto;
   overflow-wrap: anywhere;
   text-wrap: balance;
+  padding: 0 6px;
 }
 
 .question-text {
-  font-size: clamp(25px, 3.6vw, 36px);
   color: #9fc8e3;
 }
 
 .answer-text {
-  font-size: clamp(23px, 3.2vw, 32px);
   color: #e9ad78;
 }
 
@@ -240,12 +261,12 @@ button:hover,
 }
 
 .controls button:nth-child(2) {
-  background: #bf7a4e;
+  background: #a86f4b;
   color: #18181b;
 }
 
 .controls button:nth-child(3) {
-  background: #7fa66c;
+  background: #748f67;
   color: #101810;
 }
 
@@ -253,6 +274,10 @@ button:hover,
   .app {
     width: 94vw;
     padding-top: 18px;
+  }
+
+  header h1 {
+    font-size: 30px;
   }
 
   header p {
@@ -278,27 +303,35 @@ button:hover,
   }
 
   .card {
-    min-height: 330px;
-    padding: 58px 22px 24px;
+    height: 340px;
+    min-height: 340px;
+    max-height: 340px;
+    padding: 64px 22px 24px;
   }
 
   .card-meta {
     left: 18px;
-    max-width: 48%;
-    font-size: 12px;
+    max-width: 44%;
+    font-size: 11px;
+  }
+
+  .card-progress {
+    right: 18px;
+    max-width: 44%;
+    font-size: 10px;
   }
 
   .step-label {
-    max-width: 40%;
-    font-size: 14px;
-  }
-
-  .card-grid {
-    min-height: 238px;
+    max-width: 34%;
+    font-size: 13px;
   }
 
   .card-half {
-    min-height: 108px;
+    padding: 6px 4px;
+  }
+
+  .term {
+    font-size: 19px;
   }
 
   .controls {

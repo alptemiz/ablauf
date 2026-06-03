@@ -7,7 +7,7 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>FAMED Ablauf Flashcards</title>
-  <link rel="stylesheet" href="style.css?v=20260603c">
+  <link rel="stylesheet" href="style.css?v=20260603d">
 </head>
 
 <body>
@@ -17,7 +17,7 @@
   <header>
     <h1>FAMED Ablauf Flashcards</h1>
     <p>Nominalstil → Patientensprache</p>
-    <a class="navlink" href="stats.html?v=20260603c">Statistik öffnen</a>
+    <a class="navlink" href="stats.html?v=20260603d">Statistik öffnen</a>
   </header>
 
   <div class="source-row">
@@ -31,39 +31,45 @@
   <div class="toolbar">
     <select id="category" onchange="applyFilters()"></select>
     <input id="search" type="text" placeholder="Suche..." oninput="applyFilters()">
-    <button onclick="shuffleCards()">Mischen</button>
+    <button onclick="exportProgress()">Export</button>
+    <label class="toolbar-file-button">
+      Import
+      <input id="progressImportFile" class="hidden-file" type="file" accept=".json" onchange="importProgressFromFile(this.files[0])">
+    </label>
     <button onclick="resetProgress()">Reset</button>
   </div>
 
   <div class="stats">
-    <span id="counter"></span>
     <span id="score"></span>
   </div>
 
   <main class="card front" id="card" onclick="flipCard()">
-    <div>
-      <div class="step-label" id="step"></div>
-      <div class="term" id="term"></div>
-      <div class="sentence" id="sentence"></div>
+    <div class="card-meta" id="cardMeta"></div>
+    <div class="step-label" id="step"></div>
+
+    <div class="card-grid">
+      <div class="card-half card-question">
+        <div class="term question-text" id="questionText"></div>
+      </div>
+      <div class="card-divider"></div>
+      <div class="card-half card-answer">
+        <div class="term answer-text" id="answerText"></div>
+      </div>
     </div>
   </main>
 
   <div class="controls">
     <button onclick="previousCard()">← Zurück</button>
-    <button onclick="markAgain()">1 Wiederholen</button>
-    <button onclick="markGood()">2 Gewusst</button>
+    <button onclick="markAgain()">↑ Wiederholen</button>
+    <button onclick="markGood()">↓ Gewusst</button>
     <button onclick="nextCard()">Weiter →</button>
-  </div>
-
-  <div class="keys">
-    Leertaste = drehen | ← / → = wechseln | 1 = Wiederholen | 2 = Gewusst
   </div>
 
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script src="excel-loader.js?v=20260603c"></script>
-<script src="app.js?v=20260603c"></script>
+<script src="excel-loader.js?v=20260603d"></script>
+<script src="app.js?v=20260603d"></script>
 
 </body>
 </html>

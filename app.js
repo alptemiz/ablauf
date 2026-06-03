@@ -57,13 +57,6 @@ function escapeHtml(text) {
     .replace(/'/g, "&#039;");
 }
 
-function colorArticle(text) {
-  return escapeHtml(text)
-    .replace(/^der\s/i, '<span class="artikel-der">der</span> ')
-    .replace(/^die\s/i, '<span class="artikel-die">die</span> ')
-    .replace(/^das\s/i, '<span class="artikel-das">das</span> ');
-}
-
 function setSourceStatus(text, isError = false) {
   const sourceStatus = document.getElementById("sourceStatus");
   if (!sourceStatus) return;
@@ -146,40 +139,22 @@ function showCurrentCard(countShown = false) {
 }
 
 function renderEmptyCard() {
-  const cardElement = document.getElementById("card");
-  const term = document.getElementById("term");
-
-  cardElement.className = "card front";
-  term.textContent = "Keine Karten gefunden";
-  term.className = "term front";
-
+  document.getElementById("card").className = "card front";
+  document.getElementById("cardMeta").textContent = "0 / 0";
   document.getElementById("step").textContent = "";
-  document.getElementById("sentence").textContent = "";
-  document.getElementById("counter").textContent = "0 / 0";
+  document.getElementById("questionText").textContent = "Keine Karten gefunden";
+  document.getElementById("answerText").textContent = "";
   document.getElementById("score").textContent = scoreText();
 }
 
 function renderCard() {
   const card = currentCards[index];
 
-  const cardElement = document.getElementById("card");
-  const term = document.getElementById("term");
-  const step = document.getElementById("step");
-  const sentence = document.getElementById("sentence");
-
-  cardElement.className = front ? "card front" : "card back";
-  term.className = front ? "term front" : "term back";
-
-  step.textContent = card.step || "";
-  term.innerHTML = front
-    ? colorArticle(card.fachbegriff)
-    : colorArticle(card.laiensprache);
-
-  sentence.textContent = "";
-
-  document.getElementById("counter").textContent =
-    `${index + 1} / ${currentCards.length} | ${card.category}`;
-
+  document.getElementById("card").className = front ? "card front" : "card back";
+  document.getElementById("cardMeta").textContent = `${index + 1} / ${currentCards.length} | ${card.category}`;
+  document.getElementById("step").textContent = card.step || "";
+  document.getElementById("questionText").innerHTML = escapeHtml(card.fachbegriff);
+  document.getElementById("answerText").innerHTML = escapeHtml(card.laiensprache);
   document.getElementById("score").textContent = scoreText();
 }
 
@@ -218,18 +193,6 @@ function previousCard() {
   if (currentCards.length === 0) return;
 
   index = (index - 1 + currentCards.length) % currentCards.length;
-  front = true;
-
-  showCurrentCard(true);
-}
-
-function shuffleCards() {
-  for (let i = currentCards.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [currentCards[i], currentCards[j]] = [currentCards[j], currentCards[i]];
-  }
-
-  index = 0;
   front = true;
 
   showCurrentCard(true);
@@ -286,6 +249,75 @@ function resetProgress() {
   applyFilters();
 }
 
+function exportProgress() {
+  const exportData = {
+    type: "FAMED_FLASHCARD_PROGRESS",
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    storageKey: STORAGE_KEY,
+    progress
+  };
+
+  const blob = new Blob([JSON.stringify(exportData, null, 2)], {
+    type: "application/json"
+  });
+
+  const date = new Date().toISOString().slice(0, 10);
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = `famed_flashcard_progress_${date}.json`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(link.href);
+}
+
+function normalizeImportedProgress(data) {
+  const rawProgress = data && data.progress && typeof data.progress === "object"
+    ? data.progress
+    : data;
+
+  if (!rawProgress || typeof rawProgress !== "object" || Array.isArray(rawProgress)) {
+    throw new Error("Die Import-Datei enthält keine gültigen Lerndaten.");
+  }
+
+  const cleaned = {};
+
+  Object.entries(rawProgress).forEach(([cardId, state]) => {
+    if (!state || typeof state !== "object") return;
+
+    cleaned[cardId] = {
+      shown: Number(state.shown) || 0,
+      again: Number(state.again) || 0,
+      good: Number(state.good) || 0,
+      penalty: Number(state.penalty) || 0,
+      lastResult: state.lastResult || "new"
+    };
+  });
+
+  return cleaned;
+}
+
+async function importProgressFromFile(file) {
+  try {
+    if (!file) return;
+
+    const text = await file.text();
+    const data = JSON.parse(text);
+    progress = normalizeImportedProgress(data);
+
+    saveProgress();
+    applyFilters();
+    setSourceStatus("Lerndaten importiert.");
+  } catch (error) {
+    setSourceStatus(error.message, true);
+    console.error(error);
+  } finally {
+    const input = document.getElementById("progressImportFile");
+    if (input) input.value = "";
+  }
+}
+
 function setCards(cards, sourceLabel) {
   allCards = cards;
   currentCards = [];
@@ -332,8 +364,16 @@ document.addEventListener("keydown", function(event) {
 
   if (event.key === "ArrowRight") nextCard();
   if (event.key === "ArrowLeft") previousCard();
-  if (event.key === "1") markAgain();
-  if (event.key === "2") markGood();
+
+  if (event.key === "ArrowUp") {
+    event.preventDefault();
+    markAgain();
+  }
+
+  if (event.key === "ArrowDown") {
+    event.preventDefault();
+    markGood();
+  }
 });
 
 document.addEventListener("DOMContentLoaded", loadDefaultExcel);

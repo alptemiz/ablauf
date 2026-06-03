@@ -1,0 +1,260 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #0f172a;
+  color: white;
+  min-height: 100vh;
+}
+
+.app {
+  width: min(1100px, 96vw);
+  margin: 0 auto;
+  padding: 28px 0 40px;
+  text-align: center;
+}
+
+header h1 {
+  margin: 0;
+  font-size: clamp(34px, 6vw, 58px);
+  font-weight: 800;
+}
+
+header p {
+  color: #cbd5e1;
+  margin: 10px 0 18px;
+  font-size: 22px;
+}
+
+.navlink {
+  display: inline-block;
+  margin-bottom: 18px;
+  color: #38bdf8;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.navlink:hover {
+  text-decoration: underline;
+}
+
+.source-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+
+.source-status {
+  color: #cbd5e1;
+  font-size: 16px;
+}
+
+.source-status.error {
+  color: #fca5a5;
+  font-weight: bold;
+}
+
+.file-label {
+  display: inline-block;
+  background: #38bdf8;
+  color: #082f49;
+  padding: 12px 16px;
+  border-radius: 14px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.hidden-file {
+  display: none;
+}
+
+.toolbar {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+select,
+input,
+button {
+  padding: 14px 18px;
+  border-radius: 14px;
+  border: none;
+  font-size: 20px;
+}
+
+select {
+  min-width: 280px;
+  max-width: 460px;
+  background: white;
+  color: black;
+}
+
+input {
+  min-width: 320px;
+  background: white;
+  color: black;
+}
+
+button {
+  background: #38bdf8;
+  color: #082f49;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+button:hover,
+.file-label:hover {
+  filter: brightness(1.08);
+}
+
+.stats {
+  display: flex;
+  justify-content: center;
+  gap: 22px;
+  color: #e2e8f0;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  font-size: 24px;
+}
+
+.card {
+  background: #243b5e;
+  border-radius: 30px;
+  min-height: 430px;
+  padding: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 22px 55px rgba(0,0,0,0.25);
+  transition: transform 0.15s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+}
+
+.step-label {
+  color: #bae6fd;
+  font-size: clamp(20px, 3vw, 28px);
+  font-weight: 800;
+  margin-bottom: 18px;
+}
+
+/* Nominalstil */
+.term.front {
+  font-family: "Times New Roman", Times, serif;
+  font-size: clamp(30px, 6vw, 56px);
+}
+
+/* Patientensprache */
+.term.back {
+  font-family: "Comic Sans MS", "Comic Sans", cursive;
+  font-size: clamp(26px, 4.8vw, 46px);
+}
+
+.term {
+  font-weight: 800;
+  line-height: 1.15;
+  color: #f8fafc;
+}
+
+.artikel-der {
+  color: #60a5fa;
+  font-weight: 900;
+}
+
+.artikel-die {
+  color: #f87171;
+  font-weight: 900;
+}
+
+.artikel-das {
+  color: #4ade80;
+  font-weight: 900;
+}
+
+.sentence {
+  margin-top: 26px;
+  color: #cbd5e1;
+  font-size: 22px;
+  line-height: 1.35;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.controls {
+  margin-top: 24px;
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.controls button:nth-child(2) {
+  background: #f97316;
+  color: white;
+}
+
+.controls button:nth-child(3) {
+  background: #22c55e;
+  color: #052e16;
+}
+
+.keys {
+  color: #94a3b8;
+  margin-top: 20px;
+  font-size: 18px;
+}
+
+@media (max-width: 700px) {
+  .app {
+    width: 94vw;
+    padding-top: 22px;
+  }
+
+  header p {
+    font-size: 18px;
+  }
+
+  .toolbar {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  select,
+  input,
+  button,
+  .file-label {
+    width: 100%;
+    font-size: 18px;
+  }
+
+  .stats {
+    font-size: 18px;
+  }
+
+  .card {
+    min-height: 300px;
+    padding: 28px;
+  }
+
+  .controls {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .keys {
+    font-size: 14px;
+  }
+}

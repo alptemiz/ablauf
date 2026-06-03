@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FAMED Ablauf Flashcards</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="app">
+
+  <header>
+    <h1>FAMED Ablauf Flashcards</h1>
+    <p>Nominalstil → Patientensprache</p>
+    <a class="navlink" href="stats.html">Statistik öffnen</a>
+  </header>
+
+  <div class="source-row">
+    <span id="sourceStatus" class="source-status">Excel wird geladen ...</span>
+    <label class="file-label">
+      Excel auswählen
+      <input id="excelFile" class="hidden-file" type="file" accept=".xlsx,.xls" onchange="loadExcelFromFile(this.files[0])">
+    </label>
+  </div>
+
+  <div class="toolbar">
+    <select id="category" onchange="applyFilters()"></select>
+    <input id="search" type="text" placeholder="Suche..." oninput="applyFilters()">
+    <button onclick="shuffleCards()">Mischen</button>
+    <button onclick="resetProgress()">Reset</button>
+  </div>
+
+  <div class="stats">
+    <span id="counter"></span>
+    <span id="score"></span>
+  </div>
+
+  <main class="card front" id="card" onclick="flipCard()">
+    <div>
+      <div class="step-label" id="step"></div>
+      <div class="term" id="term"></div>
+      <div class="sentence" id="sentence"></div>
+    </div>
+  </main>
+
+  <div class="controls">
+    <button onclick="previousCard()">← Zurück</button>
+    <button onclick="markAgain()">1 Wiederholen</button>
+    <button onclick="markGood()">2 Gewusst</button>
+    <button onclick="nextCard()">Weiter →</button>
+  </div>
+
+  <div class="keys">
+    Leertaste = drehen | ← / → = wechseln | 1 = Wiederholen | 2 = Gewusst
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="excel-loader.js"></script>
+<script src="app.js"></script>
+
+</body>
+</html>

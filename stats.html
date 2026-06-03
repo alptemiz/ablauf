@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FAMED Statistik</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #0f172a;
+  color: white;
+}
+
+.page {
+  width: min(1300px, 96vw);
+  margin: 0 auto;
+  padding: 32px 0;
+}
+
+a {
+  color: #38bdf8;
+  font-weight: bold;
+}
+
+.summary {
+  margin: 24px 0;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.box {
+  background: #1e293b;
+  padding: 14px 18px;
+  border-radius: 14px;
+  min-width: 160px;
+}
+
+.box strong {
+  display: block;
+  font-size: 26px;
+  margin-top: 4px;
+}
+
+.source-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: 18px 0;
+}
+
+.source-status {
+  color: #cbd5e1;
+  font-size: 15px;
+}
+
+.source-status.error {
+  color: #fca5a5;
+  font-weight: bold;
+}
+
+.file-label {
+  display: inline-block;
+  background: #38bdf8;
+  color: #082f49;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.hidden-file {
+  display: none;
+}
+
+input[type="text"] {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: none;
+  font-size: 16px;
+  margin-bottom: 16px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #1e293b;
+}
+
+th,
+td {
+  padding: 10px;
+  border-bottom: 1px solid #334155;
+  text-align: left;
+  vertical-align: top;
+}
+
+th {
+  background: #334155;
+  cursor: pointer;
+  position: sticky;
+  top: 0;
+}
+
+.num {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.text-col {
+  max-width: 360px;
+}
+
+.high {
+  color: #f97316;
+  font-weight: bold;
+}
+
+.low {
+  color: #22c55e;
+  font-weight: bold;
+}
+</style>
+</head>
+
+<body>
+
+<div class="page">
+
+<h1>FAMED Flashcards Statistik</h1>
+<a href="index.html">Zurück zu den Karten</a>
+
+<div class="source-row">
+  <span id="sourceStatus" class="source-status">Excel wird geladen ...</span>
+  <label class="file-label">
+    Excel auswählen
+    <input id="excelFile" class="hidden-file" type="file" accept=".xlsx,.xls" onchange="loadStatsExcelFromFile(this.files[0])">
+  </label>
+</div>
+
+<div class="summary">
+  <div class="box">Karten<strong id="totalCards">0</strong></div>
+  <div class="box">Gezeigt<strong id="totalShown">0</strong></div>
+  <div class="box">Wiederholen<strong id="totalAgain">0</strong></div>
+  <div class="box">Gewusst<strong id="totalGood">0</strong></div>
+</div>
+
+<input id="search" type="text" placeholder="Suche..." oninput="renderTable()">
+
+<table>
+<thead>
+<tr>
+  <th onclick="sortBy('penalty')">Strafpunkt</th>
+  <th onclick="sortBy('category')">Eingriff</th>
+  <th onclick="sortBy('step')">Schritt</th>
+  <th onclick="sortBy('fachbegriff')">Nominalstil</th>
+  <th onclick="sortBy('laiensprache')">Patientensprache</th>
+  <th class="num" onclick="sortBy('shown')">Gezeigt</th>
+  <th class="num" onclick="sortBy('again')">Wiederholen</th>
+  <th class="num" onclick="sortBy('good')">Gewusst</th>
+  <th class="num" onclick="sortBy('rate')">Wiederholen-Rate</th>
+</tr>
+</thead>
+
+<tbody id="tbody"></tbody>
+</table>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="excel-loader.js"></script>
+
+<script>
+const STORAGE_KEY = "flashcardProgressExcelV1";
+
+let allCards = [];
+const progress = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+
+let sortColumn = "penalty";
+let sortDirection = "desc";
+
+function escapeHtml(text) {
+  return String(text)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function setSourceStatus(text, isError = false) {
+  const sourceStatus = document.getElementById("sourceStatus");
+  sourceStatus.textContent = text;
+  sourceStatus.className = isError ? "source-status error" : "source-status";
+}
+
+function getState(card) {
+  return progress[card.id] || {
+    shown: 0,
+    again: 0,
+    good: 0,
+    penalty: 0,
+    lastResult: "new"
+  };
+}
+
+function getAnswerTotal(card) {
+  const state = getState(card);
+  return state.again + state.good;
+}
+
+function getRate(card) {
+  const state = getState(card);
+  const total = getAnswerTotal(card);
+
+  if (total === 0) return 0;
+
+  return state.again / total;
+}
+
+function getPenalty(card) {
+  const state = getState(card);
+  const total = getAnswerTotal(card);
+  const rate = getRate(card);
+
+  if (total === 0) return 0;
+
+  return state.again * 8 - state.good * 3 + rate * 12;
+}
+
+function sortBy(column) {
+  if (sortColumn === column) {
+    sortDirection = sortDirection === "asc" ? "desc" : "asc";
+  } else {
+    sortColumn = column;
+    sortDirection = "desc";
+  }
+
+  renderTable();
+}
+
+function getSortValue(card, column) {
+  const state = getState(card);
+
+  if (column === "category") return card.category;
+  if (column === "step") return card.step;
+  if (column === "fachbegriff") return card.fachbegriff;
+  if (column === "laiensprache") return card.laiensprache;
+  if (column === "shown") return state.shown;
+  if (column === "again") return state.again;
+  if (column === "good") return state.good;
+  if (column === "rate") return getRate(card);
+  if (column === "penalty") return getPenalty(card);
+
+  return "";
+}
+
+function renderSummary() {
+  let totalShown = 0;
+  let totalAgain = 0;
+  let totalGood = 0;
+
+  allCards.forEach(card => {
+    const state = getState(card);
+    totalShown += state.shown;
+    totalAgain += state.again;
+    totalGood += state.good;
+  });
+
+  document.getElementById("totalCards").textContent = allCards.length;
+  document.getElementById("totalShown").textContent = totalShown;
+  document.getElementById("totalAgain").textContent = totalAgain;
+  document.getElementById("totalGood").textContent = totalGood;
+}
+
+function renderTable() {
+  const searchTerm = document.getElementById("search").value.toLowerCase();
+
+  let rows = allCards.filter(card => {
+    const searchableText = [
+      card.category,
+      card.step,
+      card.fachbegriff,
+      card.laiensprache
+    ].join(" ").toLowerCase();
+
+    return searchableText.includes(searchTerm);
+  });
+
+  rows.sort((a, b) => {
+    const valueA = getSortValue(a, sortColumn);
+    const valueB = getSortValue(b, sortColumn);
+
+    if (typeof valueA === "string") {
+      return sortDirection === "asc"
+        ? valueA.localeCompare(valueB)
+        : valueB.localeCompare(valueA);
+    }
+
+    return sortDirection === "asc"
+      ? valueA - valueB
+      : valueB - valueA;
+  });
+
+  document.getElementById("tbody").innerHTML = rows.map(card => {
+    const state = getState(card);
+    const penalty = getPenalty(card);
+    const rate = getRate(card);
+
+    return `
+      <tr>
+        <td class="num ${penalty > 0 ? "high" : "low"}">${penalty.toFixed(1)}</td>
+        <td>${escapeHtml(card.category)}</td>
+        <td>${escapeHtml(card.step)}</td>
+        <td class="text-col">${escapeHtml(card.fachbegriff)}</td>
+        <td class="text-col">${escapeHtml(card.laiensprache)}</td>
+        <td class="num">${state.shown}</td>
+        <td class="num">${state.again}</td>
+        <td class="num">${state.good}</td>
+        <td class="num">${(rate * 100).toFixed(1)}%</td>
+      </tr>
+    `;
+  }).join("");
+
+  renderSummary();
+}
+
+function setCards(cards, sourceLabel) {
+  allCards = cards;
+  renderTable();
+  setSourceStatus(`${cards.length} Karten aus ${sourceLabel} geladen.`);
+}
+
+async function loadDefaultStatsExcel() {
+  try {
+    setSourceStatus("Lade Excel-Datei: ablauf.xlsx ...");
+    const cards = await loadFlashcardsFromExcel(EXCEL_SOURCE);
+    setCards(cards, "ablauf.xlsx");
+  } catch (error) {
+    setSourceStatus(
+      "ablauf.xlsx konnte nicht automatisch geladen werden. Öffne die Seite über einen lokalen Server oder wähle die Excel-Datei manuell aus.",
+      true
+    );
+    console.error(error);
+    renderTable();
+  }
+}
+
+async function loadStatsExcelFromFile(file) {
+  try {
+    if (!file) return;
+    setSourceStatus(`Lade Excel-Datei: ${file.name} ...`);
+    const cards = await loadFlashcardsFromExcelFile(file);
+    setCards(cards, file.name);
+  } catch (error) {
+    setSourceStatus(error.message, true);
+    console.error(error);
+  }
+}
+
+document.addEventListener("DOMContentLoaded", loadDefaultStatsExcel);
+</script>
+
+</body>
+</html>

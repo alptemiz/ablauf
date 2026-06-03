@@ -9,7 +9,7 @@
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  background: #0f172a;
+  background: #2b2b2f;
   color: white;
 }
 
@@ -32,7 +32,7 @@ a {
 }
 
 .box {
-  background: #1e293b;
+  background: #222226;
   padding: 14px 18px;
   border-radius: 14px;
   min-width: 160px;
@@ -53,7 +53,7 @@ a {
 }
 
 .source-status {
-  color: #cbd5e1;
+  color: #d4d4d8;
   font-size: 15px;
 }
 
@@ -88,19 +88,19 @@ input[type="text"] {
 table {
   width: 100%;
   border-collapse: collapse;
-  background: #1e293b;
+  background: #222226;
 }
 
 th,
 td {
   padding: 10px;
-  border-bottom: 1px solid #334155;
+  border-bottom: 1px solid #3f3f46;
   text-align: left;
   vertical-align: top;
 }
 
 th {
-  background: #334155;
+  background: #303036;
   cursor: pointer;
   position: sticky;
   top: 0;
@@ -113,6 +113,14 @@ th {
 
 .text-col {
   max-width: 360px;
+}
+
+.nominal-col {
+  color: #93c5fd;
+}
+
+.patient-col {
+  color: #fdba74;
 }
 
 .high {
@@ -316,8 +324,8 @@ function renderTable() {
         <td class="num ${penalty > 0 ? "high" : "low"}">${penalty.toFixed(1)}</td>
         <td>${escapeHtml(card.category)}</td>
         <td>${escapeHtml(card.step)}</td>
-        <td class="text-col">${escapeHtml(card.fachbegriff)}</td>
-        <td class="text-col">${escapeHtml(card.laiensprache)}</td>
+        <td class="text-col nominal-col">${escapeHtml(card.fachbegriff)}</td>
+        <td class="text-col patient-col">${escapeHtml(card.laiensprache)}</td>
         <td class="num">${state.shown}</td>
         <td class="num">${state.again}</td>
         <td class="num">${state.good}</td>

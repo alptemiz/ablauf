@@ -175,7 +175,7 @@ function renderCard() {
     ? colorArticle(card.fachbegriff)
     : colorArticle(card.laiensprache);
 
-  sentence.textContent = front ? "Nominalstil" : "Patientensprache";
+  sentence.textContent = "";
 
   document.getElementById("counter").textContent =
     `${index + 1} / ${currentCards.length} | ${card.category}`;

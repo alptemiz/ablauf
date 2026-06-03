@@ -8,26 +8,61 @@ let front = true;
 let progress = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
 let studyTurn = Number(localStorage.getItem(TURN_KEY)) || 0;
 
+let lastFlipActivationAt = 0;
+
+function activateFlipButton(event) {
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
+  const now = Date.now();
+
+  if (now - lastFlipActivationAt < 80) {
+    return;
+  }
+
+  lastFlipActivationAt = now;
+  flipCard();
+}
+
 function setupFlipButton() {
   const button = document.getElementById("flipButton");
   if (!button) return;
 
-  let lastTouchAt = 0;
+  button.onclick = null;
+  button.ontouchstart = null;
+  button.ontouchend = null;
+  button.onpointerdown = null;
 
-  button.addEventListener("touchstart", function(event) {
-    if (event.cancelable) event.preventDefault();
-    lastTouchAt = Date.now();
-    flipCard();
-  }, { passive: false });
+  if (window.PointerEvent) {
+    button.addEventListener("pointerdown", activateFlipButton, { passive: false });
+  } else {
+    button.addEventListener("touchstart", activateFlipButton, { passive: false });
+    button.addEventListener("mousedown", activateFlipButton);
+  }
 
   button.addEventListener("click", function(event) {
-    if (Date.now() - lastTouchAt < 500) {
+    if (Date.now() - lastFlipActivationAt < 400) {
       event.preventDefault();
+      event.stopPropagation();
       return;
     }
 
-    flipCard();
+    activateFlipButton(event);
   });
+}
+
+function disableCardPointerFlip() {
+  const card = document.getElementById("card");
+  if (!card) return;
+
+  card.onclick = null;
+  card.ondblclick = null;
+  card.ontouchstart = null;
+  card.ontouchend = null;
+  card.onpointerdown = null;
+  card.onpointerup = null;
 }
 
 function getState(card) {
@@ -472,11 +507,6 @@ async function loadExcelFromFile(file) {
 }
 
 document.addEventListener("keydown", function(event) {
-  if (event.key === " ") {
-    event.preventDefault();
-    flipCard();
-  }
-
   if (event.key === "ArrowRight") nextCard();
   if (event.key === "ArrowLeft") previousCard();
 
@@ -492,6 +522,7 @@ document.addEventListener("keydown", function(event) {
 });
 
 document.addEventListener("DOMContentLoaded", function() {
+  disableCardPointerFlip();
   setupFlipButton();
   loadDefaultExcel();
 });

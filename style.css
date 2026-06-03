@@ -158,6 +158,11 @@ button {
   user-select: none;
 }
 
+.card,
+.card * {
+  pointer-events: none;
+}
+
 .card-meta {
   position: absolute;
   top: 17px;
@@ -446,7 +451,7 @@ button {
 }
 
 
-.flip-button { background: #74848b; color: #111827; }
+.flip-button { background: #74848b; color: #111827; touch-action: none; -webkit-touch-callout: none; }
 .controls-row-flip button { min-width: 276px; }
 
 .flip-button,

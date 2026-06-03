@@ -9,20 +9,27 @@ let progress = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
 let studyTurn = Number(localStorage.getItem(TURN_KEY)) || 0;
 
 let lastCardTapAt = 0;
+let touchStartX = 0;
+let touchStartY = 0;
+let touchMoved = false;
 
-function handleCardTap(event) {
+function isInteractiveTarget(target) {
+  return !!(
+    target &&
+    target.closest &&
+    target.closest("button, a, input, select, textarea, label")
+  );
+}
+
+function flipFromCardInteraction(event, preventSyntheticClick = false) {
   if (currentCards.length === 0) return;
-
-  const target = event.target;
-  if (target && target.closest && target.closest("button, a, input, select, textarea, label")) {
-    return;
-  }
+  if (isInteractiveTarget(event.target)) return;
 
   const now = Date.now();
-  if (now - lastCardTapAt < 220) return;
+  if (now - lastCardTapAt < 180) return;
   lastCardTapAt = now;
 
-  if (event.cancelable) event.preventDefault();
+  if (preventSyntheticClick && event.cancelable) event.preventDefault();
   flipCard();
 }
 
@@ -30,12 +37,34 @@ function setupCardTap() {
   const cardElement = document.getElementById("card");
   if (!cardElement) return;
 
-  if (window.PointerEvent) {
-    cardElement.addEventListener("pointerup", handleCardTap, { passive: false });
-  } else {
-    cardElement.addEventListener("touchend", handleCardTap, { passive: false });
-    cardElement.addEventListener("click", handleCardTap, { passive: false });
-  }
+  cardElement.addEventListener("touchstart", function(event) {
+    const touch = event.changedTouches && event.changedTouches[0];
+    if (!touch) return;
+
+    touchStartX = touch.clientX;
+    touchStartY = touch.clientY;
+    touchMoved = false;
+  }, { passive: true });
+
+  cardElement.addEventListener("touchmove", function(event) {
+    const touch = event.changedTouches && event.changedTouches[0];
+    if (!touch) return;
+
+    const deltaX = Math.abs(touch.clientX - touchStartX);
+    const deltaY = Math.abs(touch.clientY - touchStartY);
+    if (deltaX > 12 || deltaY > 12) touchMoved = true;
+  }, { passive: true });
+
+  cardElement.addEventListener("touchend", function(event) {
+    if (touchMoved) return;
+    flipFromCardInteraction(event, true);
+  }, { passive: false });
+
+  cardElement.addEventListener("click", function(event) {
+    const now = Date.now();
+    if (now - lastCardTapAt < 650) return;
+    flipFromCardInteraction(event, false);
+  });
 }
 
 function getState(card) {

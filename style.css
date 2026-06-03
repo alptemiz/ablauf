@@ -436,6 +436,11 @@ button:hover,
     padding: 9px 12px;
     font-size: 16px;
   }
+
+  .controls-row-flip button {
+    width: 266px;
+    max-width: calc(100vw - 44px);
+  }
 }
 
 @media (max-width: 380px) {
@@ -446,3 +451,6 @@ button:hover,
   }
 }
 
+
+.flip-button { background: #74848b; color: #111827; }
+.controls-row-flip button { min-width: 276px; }

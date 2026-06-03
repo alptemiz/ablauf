@@ -13,30 +13,20 @@ body {
 .app {
   width: min(1040px, 94vw);
   margin: 0 auto;
-  padding: 20px 0 34px;
+  padding: 12px 0 34px;
   text-align: center;
 }
 
-header h1 {
-  margin: 0;
-  font-size: 38px;
-  font-weight: 600;
-  letter-spacing: 0.03em;
-}
-
-header p {
-  color: #c7c7cc;
-  margin: 7px 0 12px;
-  font-size: 17px;
+.topbar {
+  margin-bottom: 8px;
 }
 
 .navlink {
   display: inline-block;
-  margin-bottom: 12px;
   color: #8abbd6;
   text-decoration: none;
-  font-weight: 500;
-  font-size: 16px;
+  font-weight: 400;
+  font-size: 14px;
 }
 
 .navlink:hover {
@@ -45,16 +35,16 @@ header p {
 
 .source-row {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .source-status {
   color: #c7c7cc;
-  font-size: 15px;
+  font-size: 14px;
 }
 
 .source-status.error {
@@ -67,11 +57,12 @@ header p {
   display: inline-block;
   background: #74848b;
   color: #111827;
-  padding: 10px 14px;
-  border-radius: 12px;
-  font-weight: 500;
+  padding: 7px 11px;
+  border-radius: 10px;
+  font-weight: 400;
   cursor: pointer;
   border: 1px solid rgba(255,255,255,0.08);
+  font-size: 14px;
 }
 
 .hidden-file {
@@ -84,17 +75,27 @@ header p {
   justify-content: center;
   align-items: center;
   flex-wrap: wrap;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 }
 
 select,
-input,
-button,
-.toolbar-file-button {
+input {
   padding: 10px 14px;
   border-radius: 12px;
   border: 1px solid rgba(255,255,255,0.10);
   font-size: 17px;
+}
+
+button,
+.toolbar-file-button {
+  border: 1px solid rgba(255,255,255,0.10);
+}
+
+.toolbar button,
+.toolbar-file-button {
+  padding: 7px 11px;
+  border-radius: 10px;
+  font-size: 14px;
 }
 
 select {
@@ -292,6 +293,9 @@ button:hover,
 
 .controls button {
   min-width: 132px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  font-size: 17px;
 }
 
 .again-button {
@@ -307,29 +311,55 @@ button:hover,
 @media (max-width: 700px) {
   .app {
     width: 94vw;
-    padding-top: 18px;
+    padding-top: 10px;
   }
 
-  header h1 {
-    font-size: 30px;
+  .topbar {
+    margin-bottom: 6px;
   }
 
-  header p {
-    font-size: 16px;
+  .navlink {
+    font-size: 13px;
+  }
+
+  .source-row {
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+
+  .source-status {
+    flex-basis: 100%;
+    font-size: 13px;
+  }
+
+  .file-label {
+    width: auto;
+    padding: 6px 10px;
+    border-radius: 9px;
+    font-size: 13px;
   }
 
   .toolbar {
-    display: grid;
-    grid-template-columns: 1fr;
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    align-items: center;
   }
 
-  select,
-  input,
-  button,
-  .file-label,
-  .toolbar-file-button {
+  .toolbar select,
+  .toolbar input {
     width: 100%;
+    flex-basis: 100%;
     font-size: 16px;
+  }
+
+  .toolbar button,
+  .toolbar-file-button {
+    width: auto;
+    min-width: 76px;
+    padding: 6px 10px;
+    border-radius: 9px;
+    font-size: 13px;
   }
 
   .stats {
@@ -379,16 +409,31 @@ button:hover,
 
   .controls {
     display: grid;
-    grid-template-columns: 1fr;
+    gap: 10px;
+    justify-content: center;
   }
 
   .controls-row {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 12px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: nowrap;
   }
 
   .controls button {
-    min-width: 0;
+    width: auto;
+    min-width: 128px;
+    max-width: 160px;
+    padding: 9px 12px;
+    font-size: 16px;
   }
 }
+
+@media (max-width: 380px) {
+  .controls button {
+    min-width: 112px;
+    font-size: 15px;
+    padding: 8px 10px;
+  }
+}
+

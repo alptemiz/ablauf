@@ -8,62 +8,25 @@ let front = true;
 let progress = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
 let studyTurn = Number(localStorage.getItem(TURN_KEY)) || 0;
 
-let lastCardTapAt = 0;
-let touchStartX = 0;
-let touchStartY = 0;
-let touchMoved = false;
+function setupFlipButton() {
+  const button = document.getElementById("flipButton");
+  if (!button) return;
 
-function isInteractiveTarget(target) {
-  return !!(
-    target &&
-    target.closest &&
-    target.closest("button, a, input, select, textarea, label")
-  );
-}
+  let lastTouchAt = 0;
 
-function flipFromCardInteraction(event, preventSyntheticClick = false) {
-  if (currentCards.length === 0) return;
-  if (isInteractiveTarget(event.target)) return;
-
-  const now = Date.now();
-  if (now - lastCardTapAt < 180) return;
-  lastCardTapAt = now;
-
-  if (preventSyntheticClick && event.cancelable) event.preventDefault();
-  flipCard();
-}
-
-function setupCardTap() {
-  const cardElement = document.getElementById("card");
-  if (!cardElement) return;
-
-  cardElement.addEventListener("touchstart", function(event) {
-    const touch = event.changedTouches && event.changedTouches[0];
-    if (!touch) return;
-
-    touchStartX = touch.clientX;
-    touchStartY = touch.clientY;
-    touchMoved = false;
-  }, { passive: true });
-
-  cardElement.addEventListener("touchmove", function(event) {
-    const touch = event.changedTouches && event.changedTouches[0];
-    if (!touch) return;
-
-    const deltaX = Math.abs(touch.clientX - touchStartX);
-    const deltaY = Math.abs(touch.clientY - touchStartY);
-    if (deltaX > 12 || deltaY > 12) touchMoved = true;
-  }, { passive: true });
-
-  cardElement.addEventListener("touchend", function(event) {
-    if (touchMoved) return;
-    flipFromCardInteraction(event, true);
+  button.addEventListener("touchstart", function(event) {
+    if (event.cancelable) event.preventDefault();
+    lastTouchAt = Date.now();
+    flipCard();
   }, { passive: false });
 
-  cardElement.addEventListener("click", function(event) {
-    const now = Date.now();
-    if (now - lastCardTapAt < 650) return;
-    flipFromCardInteraction(event, false);
+  button.addEventListener("click", function(event) {
+    if (Date.now() - lastTouchAt < 500) {
+      event.preventDefault();
+      return;
+    }
+
+    flipCard();
   });
 }
 
@@ -529,6 +492,6 @@ document.addEventListener("keydown", function(event) {
 });
 
 document.addEventListener("DOMContentLoaded", function() {
-  setupCardTap();
+  setupFlipButton();
   loadDefaultExcel();
 });

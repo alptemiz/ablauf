@@ -60,7 +60,7 @@ body {
   padding: 7px 11px;
   border-radius: 10px;
   font-weight: 400;
-  cursor: pointer;
+  cursor: default;
   border: 1px solid rgba(255,255,255,0.08);
   font-size: 14px;
 }
@@ -123,13 +123,7 @@ button {
   background: #74848b;
   color: #111827;
   font-weight: 500;
-  cursor: pointer;
-}
-
-button:hover,
-.file-label:hover,
-.toolbar-file-button:hover {
-  filter: brightness(1.05);
+  cursor: default;
 }
 
 .stats {
@@ -153,12 +147,12 @@ button:hover,
   display: flex;
   align-items: stretch;
   justify-content: center;
-  cursor: pointer;
+  cursor: default;
   box-shadow: 0 18px 46px rgba(0,0,0,0.34);
   transition: none;
   border: 1px solid rgba(255,255,255,0.04);
   overflow: hidden;
-  touch-action: manipulation;
+  touch-action: auto;
   -webkit-tap-highlight-color: transparent;
   -webkit-user-select: none;
   user-select: none;
@@ -454,3 +448,44 @@ button:hover,
 
 .flip-button { background: #74848b; color: #111827; }
 .controls-row-flip button { min-width: 276px; }
+
+.flip-button,
+.flip-button:hover,
+.flip-button:active,
+.flip-button:focus {
+  background: #74848b;
+  color: #111827;
+  filter: none;
+  transform: none;
+  transition: none;
+}
+
+button,
+.file-label,
+.toolbar-file-button {
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+  transition: none;
+}
+
+.card {
+  cursor: default;
+}
+
+button:hover,
+button:active,
+button:focus,
+.file-label:hover,
+.file-label:active,
+.file-label:focus,
+.toolbar-file-button:hover,
+.toolbar-file-button:active,
+.toolbar-file-button:focus {
+  filter: none;
+  transform: none;
+  box-shadow: none;
+  outline: none;
+}

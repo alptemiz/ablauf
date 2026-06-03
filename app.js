@@ -93,6 +93,25 @@ function escapeHtml(text) {
     .replace(/'/g, "&#039;");
 }
 
+function renderAblaufContext(card) {
+  const contextElement = document.getElementById("ablaufContext");
+  if (!contextElement) return;
+
+  const ablaufCards = allCards
+    .filter(item => item.category === card.category)
+    .sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0));
+
+  contextElement.title = ablaufCards.map(item => item.fachbegriff).join("; ");
+
+  contextElement.innerHTML = ablaufCards.map((item, position) => {
+    const text = escapeHtml(item.fachbegriff);
+    const separator = position < ablaufCards.length - 1 ? "; " : "";
+    const cssClass = item.id === card.id ? "ablauf-current" : "";
+
+    return `<span class="${cssClass}">${text}</span>${separator}`;
+  }).join("");
+}
+
 function setSourceStatus(text, isError = false) {
   const sourceStatus = document.getElementById("sourceStatus");
   if (!sourceStatus) return;
@@ -194,6 +213,7 @@ function renderEmptyCard() {
   document.getElementById("cardMeta").textContent = "0 / 0";
   document.getElementById("cardProgress").textContent = "";
   document.getElementById("step").textContent = "";
+  document.getElementById("ablaufContext").textContent = "";
   document.getElementById("questionText").textContent = "Keine Karten gefunden";
   document.getElementById("answerText").textContent = "";
   document.getElementById("score").textContent = scoreText();
@@ -209,6 +229,7 @@ function renderCard() {
   document.getElementById("cardProgress").textContent =
     `Gezeigt ${state.shown} | Gewusst ${state.good} | Wiederholen ${state.again} | Strafpunkt ${penalty.toFixed(1)}`;
   document.getElementById("step").textContent = card.step || "";
+  renderAblaufContext(card);
   document.getElementById("questionText").innerHTML = escapeHtml(card.fachbegriff);
   document.getElementById("answerText").innerHTML = escapeHtml(card.laiensprache);
   document.getElementById("score").textContent = scoreText();

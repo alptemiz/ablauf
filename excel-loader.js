@@ -80,6 +80,7 @@ function rowsToFlashcards(rows) {
 
     return {
       id: `${slugify(category)}__${slugify(step)}__${slugify(fachbegriff)}__${position}`,
+      order: position,
       category,
       step,
       fachbegriff,

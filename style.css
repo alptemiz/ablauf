@@ -145,7 +145,7 @@ button:hover,
   height: 380px;
   min-height: 380px;
   max-height: 380px;
-  padding: 44px 22px 24px;
+  padding: 112px 18px 20px;
   display: flex;
   align-items: stretch;
   justify-content: center;
@@ -165,9 +165,9 @@ button:hover,
   position: absolute;
   top: 17px;
   left: 24px;
-  max-width: 36%;
+  max-width: 34%;
   color: #b9bac0;
-  font-size: 13px;
+  font-size: 12px;
   line-height: 1.25;
   text-align: left;
   white-space: nowrap;
@@ -179,9 +179,9 @@ button:hover,
   position: absolute;
   top: 17px;
   right: 24px;
-  max-width: 36%;
+  max-width: 34%;
   color: #aaaab0;
-  font-size: 12px;
+  font-size: 11px;
   line-height: 1.25;
   text-align: right;
   white-space: nowrap;
@@ -196,12 +196,35 @@ button:hover,
   transform: translateX(-50%);
   max-width: 24%;
   color: #b9d8e8;
-  font-size: 17px;
-  font-weight: 500;
+  font-size: 16px;
+  font-weight: 400;
   text-align: center;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.ablauf-context {
+  position: absolute;
+  top: 45px;
+  left: 24px;
+  right: 24px;
+  max-height: 52px;
+  overflow: hidden;
+  color: #aeb0b6;
+  font-size: 10px;
+  font-weight: 400;
+  line-height: 1.3;
+  text-align: left;
+}
+
+.ablauf-current {
+  color: #c7e5f5;
+  background: rgba(93, 156, 196, 0.30);
+  border-radius: 4px;
+  padding: 0 3px;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
 }
 
 .card-grid {
@@ -217,7 +240,7 @@ button:hover,
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2px 2px;
+  padding: 1px 0;
   overflow: hidden;
 }
 
@@ -307,7 +330,7 @@ button:hover,
     height: 340px;
     min-height: 340px;
     max-height: 340px;
-    padding: 54px 14px 18px;
+    padding: 112px 12px 16px;
   }
 
   .card-meta {
@@ -327,8 +350,17 @@ button:hover,
     font-size: 13px;
   }
 
+  .ablauf-context {
+    top: 45px;
+    left: 16px;
+    right: 16px;
+    max-height: 50px;
+    font-size: 9px;
+    line-height: 1.28;
+  }
+
   .card-half {
-    padding: 1px;
+    padding: 1px 0;
   }
 
   .term {

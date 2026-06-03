@@ -8,35 +8,19 @@ let front = true;
 let progress = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
 let studyTurn = Number(localStorage.getItem(TURN_KEY)) || 0;
 
-let lastTouchFlipAt = 0;
-
+// Flip is deliberately controlled only by the explicit button in index.html.
+// No touchstart/touchend/pointer handlers are used, because iOS Safari handled them inconsistently.
 function setupFlipButton() {
   const button = document.getElementById("flipButton");
   if (!button) return;
 
-  button.onclick = null;
-  button.ontouchstart = null;
-  button.ontouchend = null;
-  button.onpointerdown = null;
-  button.onpointerup = null;
-
-  button.addEventListener("touchend", function(event) {
-    event.preventDefault();
-    event.stopPropagation();
-
-    lastTouchFlipAt = Date.now();
-    flipCard();
-  }, { passive: false });
-
-  button.addEventListener("click", function(event) {
-    event.stopPropagation();
-
-    if (Date.now() - lastTouchFlipAt < 600) {
-      return;
+  button.onclick = function(event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
     }
-
     flipCard();
-  });
+  };
 }
 
 function disableCardPointerFlip() {

@@ -13,12 +13,12 @@ body {
 .app {
   width: min(1040px, 94vw);
   margin: 0 auto;
-  padding: 12px 0 34px;
+  padding: 10px 0 34px;
   text-align: center;
 }
 
 .topbar {
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
 .navlink {
@@ -70,20 +70,21 @@ body {
 }
 
 .toolbar {
-  display: flex;
+  width: min(620px, 100%);
+  margin: 0 auto 14px;
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(110px, 1fr);
   gap: 10px;
   justify-content: center;
   align-items: center;
-  flex-wrap: wrap;
-  margin-bottom: 12px;
 }
 
 select,
 input {
-  padding: 10px 14px;
+  padding: 9px 12px;
   border-radius: 12px;
   border: 1px solid rgba(255,255,255,0.10);
-  font-size: 17px;
+  font-size: 16px;
 }
 
 button,
@@ -99,13 +100,15 @@ button,
 }
 
 select {
-  width: 320px;
+  width: 100%;
+  min-width: 0;
   background: #c7c3ba;
   color: #1f2933;
 }
 
 input {
-  width: 210px;
+  width: 100%;
+  min-width: 0;
   background: #c7c3ba;
   color: #1f2933;
 }
@@ -340,17 +343,24 @@ button:hover,
   }
 
   .toolbar {
-    display: flex;
+    width: 100%;
+    display: grid;
+    grid-template-columns: minmax(0, 3fr) minmax(86px, 1fr);
     gap: 8px;
-    justify-content: center;
     align-items: center;
+    margin-bottom: 12px;
   }
 
   .toolbar select,
   .toolbar input {
     width: 100%;
-    flex-basis: 100%;
-    font-size: 16px;
+    min-width: 0;
+    font-size: 15px;
+    padding: 8px 10px;
+  }
+
+  .toolbar input {
+    font-size: 14px;
   }
 
   .toolbar button,
@@ -363,7 +373,7 @@ button:hover,
   }
 
   .stats {
-    font-size: 15px;
+    display: none;
   }
 
   .card {

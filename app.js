@@ -220,7 +220,8 @@ function renderEmptyCard() {
   document.getElementById("ablaufContext").textContent = "";
   document.getElementById("questionText").textContent = "Keine Karten gefunden";
   document.getElementById("answerText").textContent = "";
-  document.getElementById("score").textContent = scoreText();
+  const scoreElement = document.getElementById("score");
+  if (scoreElement) scoreElement.textContent = scoreText();
 }
 
 function renderCard() {
@@ -239,7 +240,8 @@ function renderCard() {
   renderAblaufContext(card);
   document.getElementById("questionText").innerHTML = escapeHtml(card.fachbegriff);
   document.getElementById("answerText").innerHTML = escapeHtml(card.laiensprache);
-  document.getElementById("score").textContent = scoreText();
+  const scoreElement = document.getElementById("score");
+  if (scoreElement) scoreElement.textContent = scoreText();
 }
 
 function scoreText() {

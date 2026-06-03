@@ -11,33 +11,13 @@
 
 <div class="app">
 
-  <header>
-    <h1>FAMED Ablauf Flashcards</h1>
-    <p>Nominalstil → Patientensprache</p>
+  <div class="topbar">
     <a class="navlink" href="stats.html">Statistik öffnen</a>
-  </header>
-
-  <div class="source-row">
-    <span id="sourceStatus" class="source-status">Excel wird geladen ...</span>
-    <label class="file-label">
-      Excel auswählen
-      <input id="excelFile" class="hidden-file" type="file" accept=".xlsx,.xls" onchange="loadExcelFromFile(this.files[0])">
-    </label>
   </div>
 
   <div class="toolbar">
     <select id="category" onchange="applyFilters()"></select>
     <input id="search" type="text" placeholder="Suche..." oninput="applyFilters()">
-    <button onclick="exportProgress()">Export</button>
-    <label class="toolbar-file-button">
-      Import
-      <input id="progressImportFile" class="hidden-file" type="file" accept=".json" onchange="importProgressFromFile(this.files[0])">
-    </label>
-    <button onclick="resetProgress()">Reset</button>
-  </div>
-
-  <div class="stats">
-    <span id="score"></span>
   </div>
 
   <main class="card front" id="card" onclick="flipCard()">
@@ -69,7 +49,6 @@
   </div>
 
 </div>
-
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="excel-loader.js"></script>
 <script src="app.js"></script>

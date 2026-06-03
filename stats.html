@@ -62,18 +62,32 @@ a {
   font-weight: bold;
 }
 
-.file-label {
+.file-label,
+.action-button,
+.action-file-button {
   display: inline-block;
   background: #74848b;
   color: #111827;
-  padding: 10px 14px;
-  border-radius: 12px;
-  font-weight: bold;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-weight: 400;
   cursor: pointer;
+  border: 1px solid rgba(255,255,255,0.10);
+  font-size: 14px;
+}
+
+.action-button {
+  font-family: Arial, sans-serif;
 }
 
 .hidden-file {
   display: none;
+}
+
+.file-label:hover,
+.action-button:hover,
+.action-file-button:hover {
+  filter: brightness(1.05);
 }
 
 input[type="text"] {
@@ -150,6 +164,12 @@ th {
     Excel auswählen
     <input id="excelFile" class="hidden-file" type="file" accept=".xlsx,.xls" onchange="loadStatsExcelFromFile(this.files[0])">
   </label>
+  <button class="action-button" onclick="exportProgress()">Export</button>
+  <label class="action-file-button">
+    Import
+    <input id="progressImportFile" class="hidden-file" type="file" accept=".json" onchange="importProgressFromFile(this.files[0])">
+  </label>
+  <button class="action-button" onclick="resetProgress()">Reset</button>
 </div>
 
 <div class="summary">
@@ -188,8 +208,8 @@ const STORAGE_KEY = "flashcardProgressExcelV1";
 const TURN_KEY = `${STORAGE_KEY}_studyTurn`;
 
 let allCards = [];
-const progress = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
-const studyTurn = Number(localStorage.getItem(TURN_KEY)) || 0;
+let progress = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+let studyTurn = Number(localStorage.getItem(TURN_KEY)) || 0;
 
 let sortColumn = "penalty";
 let sortDirection = "desc";
@@ -246,6 +266,99 @@ function calculatePenalty(card) {
   const rawPenalty = 5 + againPressure - goodReduction - exposureReduction + ageBonus;
 
   return clamp(rawPenalty, 1, 9);
+}
+
+function saveProgress() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+  localStorage.setItem(TURN_KEY, String(studyTurn));
+}
+
+function resetProgress() {
+  progress = {};
+  studyTurn = 0;
+  saveProgress();
+  renderTable();
+  setSourceStatus("Lerndaten zurückgesetzt.");
+}
+
+function exportProgress() {
+  const exportData = {
+    type: "FAMED_FLASHCARD_PROGRESS",
+    exportedAt: new Date().toISOString(),
+    storageKey: STORAGE_KEY,
+    studyTurn,
+    progress
+  };
+
+  const blob = new Blob([JSON.stringify(exportData, null, 2)], {
+    type: "application/json"
+  });
+
+  const date = new Date().toISOString().slice(0, 10);
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = `famed_flashcard_progress_${date}.json`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(link.href);
+}
+
+function normalizeImportedProgress(data) {
+  const rawProgress = data && data.progress && typeof data.progress === "object"
+    ? data.progress
+    : data;
+
+  if (!rawProgress || typeof rawProgress !== "object" || Array.isArray(rawProgress)) {
+    throw new Error("Die Import-Datei enthält keine gültigen Lerndaten.");
+  }
+
+  const cleaned = {};
+
+  Object.entries(rawProgress).forEach(([cardId, state]) => {
+    if (!state || typeof state !== "object") return;
+
+    cleaned[cardId] = {
+      shown: Number(state.shown) || 0,
+      again: Number(state.again) || 0,
+      good: Number(state.good) || 0,
+      penalty: Number(state.penalty) || 0,
+      lastResult: state.lastResult || "new",
+      lastSeenTurn: Number(state.lastSeenTurn) || 0,
+      dueAfterTurn: Number(state.dueAfterTurn) || 0
+    };
+  });
+
+  return cleaned;
+}
+
+function inferStudyTurnFromProgress(cleanedProgress) {
+  return Object.values(cleanedProgress).reduce((maxTurn, state) => {
+    return Math.max(maxTurn, Number(state.lastSeenTurn) || 0, Number(state.dueAfterTurn) || 0);
+  }, 0);
+}
+
+async function importProgressFromFile(file) {
+  try {
+    if (!file) return;
+
+    const text = await file.text();
+    const data = JSON.parse(text);
+    const cleaned = normalizeImportedProgress(data);
+
+    progress = cleaned;
+    studyTurn = Number(data.studyTurn) || inferStudyTurnFromProgress(cleaned);
+
+    saveProgress();
+    renderTable();
+    setSourceStatus("Lerndaten importiert.");
+  } catch (error) {
+    setSourceStatus(error.message, true);
+    console.error(error);
+  } finally {
+    const input = document.getElementById("progressImportFile");
+    if (input) input.value = "";
+  }
 }
 
 function sortBy(column) {

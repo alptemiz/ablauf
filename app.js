@@ -68,20 +68,24 @@ function getCooldownLength(result) {
   return 0;
 }
 
+function clamp(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
+
 function calculatePenalty(card) {
   const state = getState(card);
-  const answerTotal = getAnswerTotal(card);
   const age = state.lastSeenTurn > 0
     ? Math.max(0, studyTurn - state.lastSeenTurn)
     : 0;
 
-  const newBonus = answerTotal === 0 ? 2 : 0;
-  const againPressure = state.again * 7;
-  const goodReduction = state.good * 5;
-  const exposureReduction = Math.min(state.shown * 1.4, 18);
-  const ageBonus = Math.min(age * 0.65, 8);
+  const againPressure = state.again * 3.6;
+  const goodReduction = state.good * 2.3;
+  const exposureReduction = Math.min(state.shown * 0.6, 3.2);
+  const ageBonus = Math.min(age * 0.25, 2.4);
 
-  return newBonus + againPressure - goodReduction - exposureReduction + ageBonus;
+  const rawPenalty = 5 + againPressure - goodReduction - exposureReduction + ageBonus;
+
+  return clamp(rawPenalty, 1, 9);
 }
 
 function escapeHtml(text) {
@@ -230,7 +234,7 @@ function renderCard() {
 
   document.getElementById("cardMeta").textContent = `${categoryOrder} / ${categoryTotal} | ${card.category}`;
   document.getElementById("cardProgress").textContent =
-    `◉ ${state.shown} · ↓ ${state.good} · ↑ ${state.again} · ⚑ ${penalty.toFixed(1)}`;
+    `◉ ${state.shown} · ↓ ${state.good} · ↑ ${state.again} · ⚑ ${penalty.toFixed(0)}`;
   document.getElementById("step").textContent = card.step || "";
   renderAblaufContext(card);
   document.getElementById("questionText").innerHTML = escapeHtml(card.fachbegriff);

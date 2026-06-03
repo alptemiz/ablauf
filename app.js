@@ -225,9 +225,12 @@ function renderCard() {
   const penalty = calculatePenalty(card);
 
   document.getElementById("card").className = front ? "card front" : "card back";
-  document.getElementById("cardMeta").textContent = `${index + 1} / ${currentCards.length} | ${card.category}`;
+  const categoryOrder = Number(card.categoryOrder) || index + 1;
+  const categoryTotal = Number(card.categoryTotal) || currentCards.length;
+
+  document.getElementById("cardMeta").textContent = `${categoryOrder} / ${categoryTotal} | ${card.category}`;
   document.getElementById("cardProgress").textContent =
-    `Gezeigt ${state.shown} | Gewusst ${state.good} | Wiederholen ${state.again} | Strafpunkt ${penalty.toFixed(1)}`;
+    `◉ ${state.shown} · ↓ ${state.good} · ↑ ${state.again} · ⚑ ${penalty.toFixed(1)}`;
   document.getElementById("step").textContent = card.step || "";
   renderAblaufContext(card);
   document.getElementById("questionText").innerHTML = escapeHtml(card.fachbegriff);

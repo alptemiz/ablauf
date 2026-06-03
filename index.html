@@ -58,10 +58,14 @@
   </main>
 
   <div class="controls">
-    <button onclick="previousCard()">← Zurück</button>
-    <button onclick="markAgain()">↑ Wiederholen</button>
-    <button onclick="markGood()">↓ Gewusst</button>
-    <button onclick="nextCard()">Weiter →</button>
+    <div class="controls-row controls-row-nav">
+      <button class="nav-button" onclick="previousCard()">← Zurück</button>
+      <button class="nav-button" onclick="nextCard()">Weiter →</button>
+    </div>
+    <div class="controls-row controls-row-grade">
+      <button class="again-button" onclick="markAgain()">↑ Wiederholen</button>
+      <button class="good-button" onclick="markGood()">↓ Gewusst</button>
+    </div>
   </div>
 
 </div>

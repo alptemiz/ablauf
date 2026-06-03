@@ -70,7 +70,7 @@ function rowsToFlashcards(rows) {
     ? findColumnIndex(headers, ["patientensprache", "laiensprache", "patientensatz", "satz", "erklaerung", "aufklaerung"], 3)
     : 3;
 
-  return dataRows.map((row, position) => {
+  const cards = dataRows.map((row, position) => {
     const category = normalizeCell(row[categoryIndex]);
     const step = normalizeCell(row[stepIndex]);
     const fachbegriff = normalizeCell(row[frontIndex]);
@@ -88,6 +88,21 @@ function rowsToFlashcards(rows) {
       satz: step
     };
   }).filter(Boolean);
+
+  const categoryCounters = {};
+  const categoryTotals = {};
+
+  cards.forEach(card => {
+    categoryTotals[card.category] = (categoryTotals[card.category] || 0) + 1;
+  });
+
+  cards.forEach(card => {
+    categoryCounters[card.category] = (categoryCounters[card.category] || 0) + 1;
+    card.categoryOrder = categoryCounters[card.category];
+    card.categoryTotal = categoryTotals[card.category];
+  });
+
+  return cards;
 }
 
 async function readWorkbookFromUrl(url = EXCEL_SOURCE) {

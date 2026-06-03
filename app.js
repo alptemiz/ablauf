@@ -8,6 +8,36 @@ let front = true;
 let progress = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
 let studyTurn = Number(localStorage.getItem(TURN_KEY)) || 0;
 
+let lastCardTapAt = 0;
+
+function handleCardTap(event) {
+  if (currentCards.length === 0) return;
+
+  const target = event.target;
+  if (target && target.closest && target.closest("button, a, input, select, textarea, label")) {
+    return;
+  }
+
+  const now = Date.now();
+  if (now - lastCardTapAt < 220) return;
+  lastCardTapAt = now;
+
+  if (event.cancelable) event.preventDefault();
+  flipCard();
+}
+
+function setupCardTap() {
+  const cardElement = document.getElementById("card");
+  if (!cardElement) return;
+
+  if (window.PointerEvent) {
+    cardElement.addEventListener("pointerup", handleCardTap, { passive: false });
+  } else {
+    cardElement.addEventListener("touchend", handleCardTap, { passive: false });
+    cardElement.addEventListener("click", handleCardTap, { passive: false });
+  }
+}
+
 function getState(card) {
   if (!progress[card.id]) {
     progress[card.id] = {
@@ -469,4 +499,7 @@ document.addEventListener("keydown", function(event) {
   }
 });
 
-document.addEventListener("DOMContentLoaded", loadDefaultExcel);
+document.addEventListener("DOMContentLoaded", function() {
+  setupCardTap();
+  loadDefaultExcel();
+});
